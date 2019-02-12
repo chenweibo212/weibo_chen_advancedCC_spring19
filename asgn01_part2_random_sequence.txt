@@ -1,3 +1,27 @@
+part 1 ---- color filter over b&w animation
+
+#accelerate video 
+ffmpeg -i samplevideo.mp4 -an -filter:v “setpts=0.5*PTS” out.mp4
+ffmpeg -i out.mp4 -vf subtitles=sub.srt out_sub.mp4
+
+
+# segment the video 
+ffmpeg -i colorfilter.mp4 -c copy -map 0 -segment_time 00:01:00 -f segment output%03d.mp4
+
+
+#two videos overlayed
+
+ffmpeg \
+-i output001.mp4 -i out_sub.mp4 \
+-filter_complex " \
+[0:v]setpts=PTS-STARTPTS, scale=480x360[top]; \
+[1:v]setpts=PTS-STARTPTS, scale=480x360, \
+format=yuva420p, colorchannelmixer=aa=0.5[bottom]; \
+[top][bottom]overlay=shortest=1" -vcodec libx264 OUTPUT2.mp4
+
+
+part 2  ---- random sequence
+
 //get high quality image from the clip
 ffmpeg -i walking_in_a_circle.mp4 -qscale:v 2 %03d.jpg
 
@@ -39,3 +63,4 @@ ffmpeg -i walking_sequence_fps2_crossfade_v2.mp4 -i johann_strauss_ii_the_blue_d
 //empty frame
 ffmpeg -f lavfi -i color=black:s=1280x720:r=24000/1001 -f lavfi -i anullsrc \
        -ar 48000 -ac 2 -t 5 blank.mp4
+
