@@ -4,10 +4,20 @@ part 1 ---- color filter over b&w animation
 ffmpeg -i samplevideo.mp4 -an -filter:v “setpts=0.5*PTS” out.mp4
 ffmpeg -i out.mp4 -vf subtitles=sub.srt out_sub.mp4
 
+#subtitle
+1
+00:00:00,162 --> 00:00:02,875
+Hello, this is our homework!
+
+2
+00:00:03,800 --> 00:00:05,000
+We accelerate the original video to faster speed.
+
+
+
 
 # segment the video 
 ffmpeg -i colorfilter.mp4 -c copy -map 0 -segment_time 00:01:00 -f segment output%03d.mp4
-
 
 #two videos overlayed
 
