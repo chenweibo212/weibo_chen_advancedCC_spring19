@@ -63,6 +63,7 @@ void ofApp::draw(){
         myTriangles[i].draw();
     }
     
+    ofSetColor(255,255,255);
     for(int j=0; j < mImages.size(); j++){
         mImages[j].draw(height[j] + ofRandom(-4, 4), width[j] + ofRandom(-4, 4));
         
