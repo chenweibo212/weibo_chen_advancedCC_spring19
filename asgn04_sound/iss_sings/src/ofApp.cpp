@@ -87,23 +87,31 @@ void ofApp::audioOut( ofSoundBuffer &outBuffer){
     }
     
     //for melody sequence
-    beat=((int) c.phasor(8));
-    morebeats=((int) e.phasor(0.5,0,16));
+//    beat=round(c.phasor(8));
+//    morebeats=((int) e.phasor(0.5,0,16));
+    
     patch1=b.line(4,env1);
-    patch2=f.line(6,env2);
-    tune=g.sinewave(melody[morebeats]*0.25);
-    if (lastbeat!=beat) {//this is a nice sample and hold routine for the kick drum
-        f.trigger(0, env2[0]);//it runs off the hi hat.
-        
-        
-        if (rhythm1[morebeats]==1) {
-            b.trigger(0, env1[0]);//and gets played when it's time.
-        }
-    }
-    lastbeat=beat;
+    patch2=f.line(6,env1);
+    tune=g.sinewave(melody[beat]*0.25);
+    
+    ofLogNotice() << beat;
+
+//    if (lastbeat!=beat) {
+//
+//        f.trigger(0, env2[0]);//it runs off the hi hat.
+//
+//
+//        if (rhythm1[morebeats]==1) {
+//            b.trigger(0, env1[0]);//and gets played when it's time.
+//        }
+//    }
+    
+//  lastbeat=beat;
     
     for (int q = 0 ; q<bufferSize; q++) {
+    
     //monosynth
+    ADSR.trigger=1;
     ADSRout=ADSR.adsr(1.0,ADSR.trigger);
     
     LFO1out=LFO1.sinebuf(0.2);//this lfo is a sinewave at 0.2 hz
@@ -114,7 +122,6 @@ void ofApp::audioOut( ofSoundBuffer &outBuffer){
     VCFout=VCF.lores((VCO1out+VCO2out)*0.5, ADSRout*10000, 10);
     //finally add the ADSR as an amplitude modulator
     double monoSound=VCFout*ADSRout;
-    ADSR.trigger=1;
     
     //frequency modulation
     double modFreqSample = osc1.sinewave(targetFrequency_Latitude + env.adsr(mod.sinewave(modulationFrequency), env.trigger) * modulationIndex);
@@ -126,8 +133,10 @@ void ofApp::audioOut( ofSoundBuffer &outBuffer){
     modSample = ofClamp( modSample, -1.0, 1.0);
     
     //sequencing
-    ramp=i.phasor(0.5,1,2048);//create a basic ramp
-    pan=j.phasor(0.25);//some panning from a phasor (object is equal power)
+    ramp=i.phasor(0.5,2,2048);
+    //create a basic ramp: A waveform that is similar to a sawtooth waveform but different in that it starts at zero level and gradually rises to its peak level and then instantly drops back to zero level to form one cycle.
+    pan=j.phasor(0.25);
+    //This produces a floating point linear ramp between 0 and 1 at the desired frequency
     
     delayed=delay.dl(tune, ramp, 0.9)*0.125;
     mixed=((a.sinewave(patch1)*0.5)+((d.saw(patch2))*0.125)+(delayed*0.3)*0.5);
@@ -138,18 +147,22 @@ void ofApp::audioOut( ofSoundBuffer &outBuffer){
     
     mymix.stereo(more+mixed+delayed, outputs, 1-pan);
     
-    outBuffer[q * outBuffer.getNumChannels()] = outputs[0] * 0.5 + monoSound * 0.8;
-    outBuffer[q * outBuffer.getNumChannels()+1] = outputs[1] * 0.5 + modSample;
+    outBuffer[q * outBuffer.getNumChannels()] = monoSound + outputs[0] * 0.3;
+    outBuffer[q * outBuffer.getNumChannels()+1] = outputs[1] * 0.3 + modSample;
     }
     
     if (frame % 60 == 0 || frame == 1){
         noteIndex_Latitude++;
         noteIndex_Longitude++;
+        beat++;
         if (noteIndex_Latitude > issLatitude_freq.size()){
             noteIndex_Latitude = 0;
         }
         if (noteIndex_Longitude > issLongitude_freq.size()){
             noteIndex_Longitude = 0;
+        }
+        if (beat > 14){
+            beat=0;
         }
     }
 }
