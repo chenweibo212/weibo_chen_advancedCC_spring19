@@ -58,8 +58,8 @@ class ofApp : public ofBaseApp{
     double env1[4]={200,0,0,50};
     double env2[6]={10000,0,9000,5,0,5};
     //the melody data
-    double melody[14]={600,0,0,650,0,0,400,0,0,425,0,300,0,315};
-    int rhythm1[16]={1,0,0,1,0,0,1,0,0,1,0,0,1,0,1,0};
+    double melody[14]={600,400,330,650,400,0,400,0,0,425,0,300,0,315};
+    //int rhythm1[16]={1,0,0,1,0,0,1,0,0,1,0,0,1,0,1,0};
 
     //setup for getting data
     ofBuffer bufferLatitude;
